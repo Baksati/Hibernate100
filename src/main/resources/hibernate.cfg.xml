@@ -5,26 +5,30 @@
 
 <hibernate-configuration>
     <session-factory>
-        <!-- Основные настройки подключения -->
-        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <!-- Настройки подключения к базе данных-->
         <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
         <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/test_hb?useSSL=false&amp;serverTimezone=UTC</property>
         <property name="hibernate.connection.username">root</property>
         <property name="hibernate.connection.password">0912560124</property>
 
-        <!-- Настройки пула соединений (рекомендуется) -->
+        <!-- Настройки пула соединений JDBC -->
         <property name="hibernate.c3p0.min_size">5</property>
         <property name="hibernate.c3p0.max_size">20</property>
         <property name="hibernate.c3p0.timeout">300</property>
 
-        <!-- Логирование SQL (для разработки) -->
+        <!-- SQL Диалект -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Вывести все выполненные SQL-запросы -->
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
 
-        <!-- Автоматическое обновление схемы -->
+        <!-- Обновление схемы базы данных при запуске -->
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <!-- Маппинг сущностей -->
-        <mapping resource="org/example/model/Developer.hbm.xml"/>
+        <!-- Сопостовление сущностей -->
+        <mapping class="org.example.model.Developer"/>
+        <mapping class="org.example.model.Skill"/>
+        <mapping class="org.example.model.Specialty"/>
     </session-factory>
 </hibernate-configuration>

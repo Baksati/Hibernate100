@@ -22,9 +22,9 @@ public class Developer {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "ENUM('ACTIVE', 'DELETED') DEFAULT 'ACTIVE'")
-    private String status;
+    private Status status;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "developers_skills",
             joinColumns = @JoinColumn(name = "developer_id"),
