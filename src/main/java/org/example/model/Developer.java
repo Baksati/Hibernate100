@@ -2,29 +2,39 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
 @Table(name = "developers")
 public class Developer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "firstName")
+    @Column(name = "firstName", nullable = false)
     private String firstName;
 
-    @Column(name = "lastName")
+    @Column(name = "lastName", nullable = false)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('ACTIVE', 'DELETED') DEFAULT 'ACTIVE'")
+    @Column(nullable = false)
     private Status status;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    // Для связи многие-ко-многим с навыками
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "developers_specialties",
+            joinColumns = @JoinColumn(name = "developer_id"),
+            inverseJoinColumns = @JoinColumn(name = "specialty_id")
+    )
+    private List<Specialty> specialties = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "developers_skills",
             joinColumns = @JoinColumn(name = "developer_id"),
@@ -32,18 +42,22 @@ public class Developer {
     )
     private List<Skill> skills = new ArrayList<>();
 
-    @ManyToOne
-    @JoinTable(
-            name = "developers_specialties",
-            joinColumns = @JoinColumn(name = "developer_id"),
-            inverseJoinColumns = @JoinColumn(name = "specialty_id")
-    )
-    private Specialty specialty;
-
     @Override
     public String toString() {
-        return "Developer [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName
-                + ", status=" + status + ", specialty=" + specialty + ", skills=" + skills + "]";
+        return "{\n" +
+                "  \"id\": " + id + ",\n" +
+                "  \"firstName\": \"" + firstName + "\",\n" +
+                "  \"lastName\": \"" + lastName + "\",\n" +
+                "  \"status\": \"" + status + "\",\n" +
+                "  \"specialties\": " + (specialties != null ?
+                specialties.stream().map(Specialty::getName).collect
+                        (Collectors.joining("\", \"", "[\"", "\"]"))
+                : "[]") + ",\n" +
+                "  \"skills\": " + (skills != null ?
+                skills.stream().map(Skill::getName).collect
+                        (Collectors.joining("\", \"", "[\"", "\"]"))
+                : "[]") + "\n" +
+                "}";
     }
 }
 

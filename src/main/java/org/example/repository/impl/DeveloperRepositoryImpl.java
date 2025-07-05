@@ -5,108 +5,64 @@ import org.example.model.Developer;
 import org.example.repository.DeveloperRepository;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class DeveloperRepositoryImpl implements DeveloperRepository {
-    private static final Logger logger = LoggerFactory.getLogger(DeveloperRepositoryImpl.class);
 
     @Override
     public List<Developer> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<Developer> developers = session.createQuery("FROM Developer", Developer.class).list();
-            logger.debug("Получено {} разработчиков", developers.size());
-            return developers;
-        } catch (Exception e) {
-            logger.error("Ошибка при получении списка разработчиков", e);
-            throw new RuntimeException("Не удалось получить список разработчиков", e);
+            return session.createQuery("FROM Developer", Developer.class).list();
         }
     }
 
     @Override
     public Developer getById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Developer developer = session.find(Developer.class, id);
-            if (developer != null) {
-                logger.debug("Найден разработчик ID: {}", id);
-            } else {
-                logger.warn("Разработчик с ID {} не найден", id);
-            }
-            return developer;
-        } catch (Exception e) {
-            logger.error("Ошибка при поиске разработчика по ID: {}", id, e);
-            throw new RuntimeException("Не удалось найти разработчика", e);
+            return session.find(Developer.class, id); // Используем find вместо get
         }
     }
 
     @Override
     public void save(Developer developer) {
-        Transaction transaction = null;
+        Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
+            tx = session.beginTransaction();
             session.persist(developer);
-            transaction.commit();
-            logger.info("Разработчик успешно сохранен: {}", developer.getId());
+            tx.commit();
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                try {
-                    transaction.rollback();
-                    logger.debug("Транзакция откачена");
-                } catch (Exception rollbackEx) {
-                    logger.error("Ошибка при откате транзакции", rollbackEx);
-                }
-            }
-            logger.error("Ошибка сохранения разработчика: {}", developer, e);
-            throw new RuntimeException("Не удалось сохранить разработчика", e);
+            if (tx != null) tx.rollback();
+            throw new RuntimeException("Failed to save developer", e);
         }
     }
 
     @Override
     public void update(Developer developer) {
-        Transaction transaction = null;
+        Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
+            tx = session.beginTransaction();
             session.merge(developer);
-            transaction.commit();
-            logger.info("Разработчик обновлен: {}", developer.getId());
+            tx.commit();
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                try {
-                    transaction.rollback();
-                } catch (Exception rollbackEx) {
-                    logger.error("Ошибка при откате транзакции", rollbackEx);
-                }
-            }
-            logger.error("Ошибка обновления разработчика ID: {}", developer.getId(), e);
-            throw new RuntimeException("Не удалось обновить разработчика", e);
+            if (tx != null) tx.rollback();
+            throw new RuntimeException("Failed to update developer", e);
         }
     }
 
     @Override
     public void delete(Long id) {
-        Transaction transaction = null;
+        Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Developer developer = session.find(Developer.class, id);
-            if (developer != null) {
-                session.remove(developer);
-                logger.info("Разработчик удален ID: {}", id);
-            } else {
-                logger.warn("Попытка удаления несуществующего разработчика ID: {}", id);
+            tx = session.beginTransaction();
+            Developer dev = session.find(Developer.class, id);
+            if (dev != null) {
+                session.remove(dev);
             }
-            transaction.commit();
+            tx.commit();
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                try {
-                    transaction.rollback();
-                } catch (Exception rollbackEx) {
-                    logger.error("Ошибка при откате транзакции", rollbackEx);
-                }
-            }
-            logger.error("Ошибка удаления разработчика ID: {}", id, e);
-            throw new RuntimeException("Не удалось удалить разработчика", e);
+            if (tx != null) tx.rollback();
+            throw new RuntimeException("Failed to delete developer", e);
         }
     }
 }
