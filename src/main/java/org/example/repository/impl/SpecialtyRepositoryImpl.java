@@ -32,7 +32,7 @@ public class SpecialtyRepositoryImpl implements SpecialtyRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to save specialty", e);
+            throw new RuntimeException("Ошибка сохранения данных специальности", e);
         }
     }
 
@@ -45,7 +45,7 @@ public class SpecialtyRepositoryImpl implements SpecialtyRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to update specialty", e);
+            throw new RuntimeException("Ошибка обновления данных специальности", e);
         }
     }
 
@@ -61,7 +61,7 @@ public class SpecialtyRepositoryImpl implements SpecialtyRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to delete specialty", e);
+            throw new RuntimeException("Ошибка удаления данных специальности", e);
         }
     }
 }

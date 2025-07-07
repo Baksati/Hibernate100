@@ -13,12 +13,11 @@ public class HibernateUtil {
 
     private static SessionFactory buildSessionFactory() {
         try {
-            // Создаем реестр сервисов из конфигурационного файла
+
             StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
                     .configure("hibernate.cfg.xml")
                     .build();
 
-            // Создаем метаданные, регистрируя все entity-классы
             Metadata metadata = new MetadataSources(registry)
                     .addAnnotatedClass(org.example.model.Developer.class)
                     .addAnnotatedClass(org.example.model.Skill.class)
@@ -26,7 +25,6 @@ public class HibernateUtil {
                     .getMetadataBuilder()
                     .build();
 
-            // Создаем и возвращаем SessionFactory
             return metadata.getSessionFactoryBuilder().build();
 
         } catch (Exception ex) {

@@ -2,6 +2,7 @@ package org.example.repository.impl;
 
 import org.example.config.HibernateUtil;
 import org.example.model.Developer;
+import org.example.model.Skill;
 import org.example.repository.DeveloperRepository;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -20,7 +21,7 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
     @Override
     public Developer getById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.find(Developer.class, id); // Используем find вместо get
+            return session.find(Developer.class, id);
         }
     }
 
@@ -29,11 +30,16 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
         Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
+
+            // Каскадное сохранение автоматически сохранит навыки и специальности
             session.persist(developer);
+
             tx.commit();
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to save developer", e);
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw new RuntimeException("Ошибка сохранения данных разработчика", e);
         }
     }
 
@@ -46,7 +52,7 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to update developer", e);
+            throw new RuntimeException("Ошибка обновления данных разработчика", e);
         }
     }
 
@@ -62,7 +68,7 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to delete developer", e);
+            throw new RuntimeException("Ошибка удаления данных разработчика", e);
         }
     }
 }

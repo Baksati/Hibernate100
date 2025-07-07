@@ -2,8 +2,8 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
@@ -25,39 +25,49 @@ public class Developer {
     @Column(nullable = false)
     private Status status;
 
-    // Для связи многие-ко-многим с навыками
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "developers_specialties",
-            joinColumns = @JoinColumn(name = "developer_id"),
-            inverseJoinColumns = @JoinColumn(name = "specialty_id")
+    @ManyToMany(
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+            fetch = FetchType.EAGER
     )
-    private List<Specialty> specialties = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "developers_skills",
             joinColumns = @JoinColumn(name = "developer_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private List<Skill> skills = new ArrayList<>();
+    private Set<Skill> skills = new HashSet<>();
+
+    @ManyToMany(
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+            fetch = FetchType.EAGER
+    )
+    @JoinTable(
+            name = "developers_specialties",
+            joinColumns = @JoinColumn(name = "developer_id"),
+            inverseJoinColumns = @JoinColumn(name = "specialty_id")
+    )
+    private Set<Specialty> specialties = new HashSet<>();
 
     @Override
     public String toString() {
+        String specialtiesStr = specialties != null
+                ? specialties.stream()
+                .map(Specialty::getName)
+                .collect(Collectors.joining("\", \"", "[\"", "\"]"))
+                : "[]";
+
+        String skillsStr = skills != null
+                ? skills.stream()
+                .map(Skill::getName)
+                .collect(Collectors.joining("\", \"", "[\"", "\"]"))
+                : "[]";
+
         return "{\n" +
                 "  \"id\": " + id + ",\n" +
                 "  \"firstName\": \"" + firstName + "\",\n" +
                 "  \"lastName\": \"" + lastName + "\",\n" +
                 "  \"status\": \"" + status + "\",\n" +
-                "  \"specialties\": " + (specialties != null ?
-                specialties.stream().map(Specialty::getName).collect
-                        (Collectors.joining("\", \"", "[\"", "\"]"))
-                : "[]") + ",\n" +
-                "  \"skills\": " + (skills != null ?
-                skills.stream().map(Skill::getName).collect
-                        (Collectors.joining("\", \"", "[\"", "\"]"))
-                : "[]") + "\n" +
+                "  \"specialties\": " + specialtiesStr + ",\n" +
+                "  \"skills\": " + skillsStr + "\n" +
                 "}";
     }
 }
-

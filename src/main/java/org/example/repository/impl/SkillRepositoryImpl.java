@@ -32,7 +32,7 @@ public class SkillRepositoryImpl implements SkillRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to save skill", e);
+            throw new RuntimeException("Ошибка сохранения данных навыка", e);
         }
     }
 
@@ -45,7 +45,7 @@ public class SkillRepositoryImpl implements SkillRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to update skill", e);
+            throw new RuntimeException("Ошибка обновления данных навыка", e);
         }
     }
 
@@ -61,7 +61,7 @@ public class SkillRepositoryImpl implements SkillRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Failed to delete skill", e);
+            throw new RuntimeException("Ошибка удаления данных навыка", e);
         }
     }
 }
