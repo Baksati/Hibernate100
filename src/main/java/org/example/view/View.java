@@ -7,8 +7,8 @@ import org.example.model.Developer;
 import org.example.model.Skill;
 import org.example.model.Specialty;
 import org.example.model.Status;
-
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -54,16 +54,62 @@ public class View {
 
                 Status status = Status.ACTIVE;
 
+                // Вывод и выбор навыков
+                System.out.println("\nДоступные навыки:");
+                List<Skill> skills = skillController.getAllSkills();
+                for (int i = 0; i < skills.size(); i++) {
+                    System.out.println((i + 1) + ". " + skills.get(i).getName());
+                }
+                System.out.print("Выберите номера нужных навыков через запятую: ");
+                String skillChoice = scanner.nextLine();
+
+                // Вывод и выбор специальностей
+                System.out.println("\nДоступные специальности:");
+                List<Specialty> specialties = specialtyController.getAllSpecialties();
+                for (int i = 0; i < specialties.size(); i++) {
+                    System.out.println((i + 1) + ". " + specialties.get(i).getName());
+                }
+                System.out.print("Выберите номера нужных специальностей через запятую: ");
+                String specChoice = scanner.nextLine();
+
+                // Создание разработчика
                 Developer developer = new Developer();
                 developer.setFirstName(firstName);
                 developer.setLastName(lastName);
                 developer.setStatus(status);
 
-                developerController.saveDeveloper(developer);
-                skillController.saveSkill(new Skill());
+                // Добавление выбранных навыков
+                if (!skillChoice.isEmpty()) {
+                    String[] chosenSkills = skillChoice.split(",");
+                    for (String num : chosenSkills) {
+                        try {
+                            int skillNum = Integer.parseInt(num.trim()) - 1;
+                            if (skillNum >= 0 && skillNum < skills.size()) {
+                                developer.getSkills().add(skills.get(skillNum));
+                            }
+                        } catch (NumberFormatException e) {
+                            // Пропускаем некорректные номера
+                        }
+                    }
+                }
 
-                System.out.println("Разработчик" + " " + developer.getFirstName() +
-                        " , " + developer.getLastName() + " " + " добавлен");
+                // Добавление выбранных специальностей
+                if (!specChoice.isEmpty()) {
+                    String[] chosenSpecs = specChoice.split(",");
+                    for (String num : chosenSpecs) {
+                        try {
+                            int specNum = Integer.parseInt(num.trim()) - 1;
+                            if (specNum >= 0 && specNum < specialties.size()) {
+                                developer.getSpecialties().add(specialties.get(specNum));
+                            }
+                        } catch (NumberFormatException e) {
+                            // Пропускаем некорректные номера
+                        }
+                    }
+                }
+
+                developerController.saveDeveloper(developer);
+                System.out.println("Разработчик " + developer.getFirstName() + " " + developer.getLastName() + " успешно добавлен!");
 
             } else if (input == 5) {
                 System.out.println("Введите ID разработчика для измений данных");
@@ -294,4 +340,3 @@ public class View {
         }
     }
 }
-

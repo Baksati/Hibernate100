@@ -25,49 +25,33 @@ public class Developer {
     @Column(nullable = false)
     private Status status;
 
-    @ManyToMany(
-            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
-            fetch = FetchType.EAGER
-    )
-    @JoinTable(
-            name = "developers_skills",
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @JoinTable(name = "developers_skills",
             joinColumns = @JoinColumn(name = "developer_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private Set<Skill> skills = new HashSet<>();
 
-    @ManyToMany(
-            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
-            fetch = FetchType.EAGER
-    )
-    @JoinTable(
-            name = "developers_specialties",
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @JoinTable(name = "developers_specialties",
             joinColumns = @JoinColumn(name = "developer_id"),
-            inverseJoinColumns = @JoinColumn(name = "specialty_id")
-    )
-    private Set<Specialty> specialties = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "specialty_id"))
+    private Set<Specialty> specialties = new HashSet<>();  // Исправленный тип
 
     @Override
     public String toString() {
-        String specialtiesStr = specialties != null
-                ? specialties.stream()
-                .map(Specialty::getName)
-                .collect(Collectors.joining("\", \"", "[\"", "\"]"))
-                : "[]";
-
-        String skillsStr = skills != null
-                ? skills.stream()
-                .map(Skill::getName)
-                .collect(Collectors.joining("\", \"", "[\"", "\"]"))
-                : "[]";
-
         return "{\n" +
                 "  \"id\": " + id + ",\n" +
                 "  \"firstName\": \"" + firstName + "\",\n" +
                 "  \"lastName\": \"" + lastName + "\",\n" +
                 "  \"status\": \"" + status + "\",\n" +
-                "  \"specialties\": " + specialtiesStr + ",\n" +
-                "  \"skills\": " + skillsStr + "\n" +
+                "  \"skills\": " + (skills != null ?
+                skills.stream()
+                        .map(Skill::getName)
+                        .collect(Collectors.joining("\", \"", "[\"", "\"]")) : "[]") + ",\n" +
+                "  \"specialties\": " + (specialties != null ?
+                specialties.stream()
+                        .map(Specialty::getName)
+                        .collect(Collectors.joining("\", \"", "[\"", "\"]")) : "[]") + "\n" +
                 "}";
     }
 }

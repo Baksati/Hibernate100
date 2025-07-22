@@ -3,6 +3,7 @@ package org.example.repository.impl;
 import org.example.config.HibernateUtil;
 import org.example.model.Developer;
 import org.example.model.Skill;
+import org.example.model.Specialty;
 import org.example.repository.DeveloperRepository;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -34,12 +35,16 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
             // Каскадное сохранение автоматически сохранит навыки и специальности
             session.persist(developer);
 
+            for (Skill skill : developer.getSkills()) {
+                session.merge(skill); // Используем merge для существующих навыков
+            }
+            for (Specialty specialty : developer.getSpecialties()) {
+                session.merge(specialty); // Используем merge для существующих специальностей
+            }
             tx.commit();
         } catch (Exception e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw new RuntimeException("Ошибка сохранения данных разработчика", e);
+            if (tx != null) tx.rollback();
+            throw new RuntimeException("Error saving developer", e);
         }
     }
 

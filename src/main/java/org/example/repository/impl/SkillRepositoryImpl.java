@@ -65,4 +65,3 @@ public class SkillRepositoryImpl implements SkillRepository {
         }
     }
 }
-
