@@ -27,4 +27,4 @@
         <property name="hibernate.enable_lazy_load_no_trans">true</property>
         <property name="hibernate.max_fetch_depth">3</property>
     </session-factory>
-</hibernate-configuration>ation>onfiguration>
+</hibernate-configuration>

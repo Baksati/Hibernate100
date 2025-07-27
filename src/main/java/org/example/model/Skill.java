@@ -2,6 +2,8 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -11,12 +13,14 @@ public class Skill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
+    @ManyToMany(mappedBy = "skills")
+    private List<Developer> developers = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status;
+    private Status status = Status.ACTIVE;
 
     @Override
     public String toString() {

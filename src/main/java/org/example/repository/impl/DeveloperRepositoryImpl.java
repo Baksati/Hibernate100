@@ -2,12 +2,9 @@ package org.example.repository.impl;
 
 import org.example.config.HibernateUtil;
 import org.example.model.Developer;
-import org.example.model.Skill;
-import org.example.model.Specialty;
 import org.example.repository.DeveloperRepository;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
 import java.util.List;
 
 public class DeveloperRepositoryImpl implements DeveloperRepository {
@@ -28,52 +25,49 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
 
     @Override
     public void save(Developer developer) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-
-            // Каскадное сохранение автоматически сохранит навыки и специальности
-            session.persist(developer);
-
-            for (Skill skill : developer.getSkills()) {
-                session.merge(skill); // Используем merge для существующих навыков
-            }
-            for (Specialty specialty : developer.getSpecialties()) {
-                session.merge(specialty); // Используем merge для существующих специальностей
-            }
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        try {
+            session.merge(developer);
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Error saving developer", e);
+            throw new RuntimeException("Ошибка сохранения разработчика", e);
+        } finally {
+            session.close();
         }
     }
 
     @Override
     public void update(Developer developer) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            session.merge(developer);
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        try {
+            session.merge(developer); // Используем merge вместо update
             tx.commit();
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw new RuntimeException("Ошибка обновления данных разработчика", e);
+            tx.rollback();
+            throw e;
+        } finally {
+            session.close();
         }
     }
 
     @Override
     public void delete(Long id) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        try {
             Developer dev = session.find(Developer.class, id);
             if (dev != null) {
-                session.remove(dev);
+                session.remove(dev); // Связи удалятся автоматически
             }
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Ошибка удаления данных разработчика", e);
+            throw new RuntimeException("Ошибка при удалении разработчика", e);
+        } finally {
+            session.close();
         }
     }
 }

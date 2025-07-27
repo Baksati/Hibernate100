@@ -8,8 +8,6 @@ import org.example.model.Skill;
 import org.example.model.Specialty;
 import org.example.model.Status;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class View {
@@ -42,74 +40,55 @@ public class View {
                 } catch (NullPointerException e) {
                     System.out.println("ID не найден");
                 }
-            } else if (input == 4) {
-                System.out.println("Введите имя разработчика: ");
-                String firstName = "";
-                do {
-                    firstName = scanner.nextLine();
-                } while (Objects.equals(firstName, ""));
 
-                System.out.println("Введите фамилию разработчика: ");
+            } else if (input == 4) {
+                scanner.nextLine(); // Очистка буфера
+
+                // Ввод имени
+                System.out.print("Имя разработчика: ");
+                String firstName = scanner.nextLine();
+
+                // Ввод фамилии
+                System.out.print("Фамилия разработчика: ");
                 String lastName = scanner.nextLine();
 
-                Status status = Status.ACTIVE;
+                // Создание объекта
+                Developer dev = new Developer();
+                dev.setFirstName(firstName);
+                dev.setLastName(lastName);
+                dev.setStatus(Status.ACTIVE);
 
-                // Вывод и выбор навыков
+                // Вывод списка всех навыков
                 System.out.println("\nДоступные навыки:");
-                List<Skill> skills = skillController.getAllSkills();
-                for (int i = 0; i < skills.size(); i++) {
-                    System.out.println((i + 1) + ". " + skills.get(i).getName());
-                }
-                System.out.print("Выберите номера нужных навыков через запятую: ");
-                String skillChoice = scanner.nextLine();
+                skillController.getAllSkills().forEach(s -> System.out.println("- " + s.getName()));
 
-                // Вывод и выбор специальностей
+                // Ввод навыков
+                System.out.print("\nВведите названия нужных навыков через запятую: ");
+                String[] neededSkills = scanner.nextLine().split(",");
+                for (String skillName : neededSkills) {
+                    skillController.getAllSkills().stream()
+                            .filter(s -> s.getName().equalsIgnoreCase(skillName.trim()))
+                            .findFirst()
+                            .ifPresent(skill -> dev.getSkills().add(skill));
+                }
+
+                // Вывод списка всех специальностей
                 System.out.println("\nДоступные специальности:");
-                List<Specialty> specialties = specialtyController.getAllSpecialties();
-                for (int i = 0; i < specialties.size(); i++) {
-                    System.out.println((i + 1) + ". " + specialties.get(i).getName());
-                }
-                System.out.print("Выберите номера нужных специальностей через запятую: ");
-                String specChoice = scanner.nextLine();
+                specialtyController.getAllSpecialties().forEach(s -> System.out.println("- " + s.getName()));
 
-                // Создание разработчика
-                Developer developer = new Developer();
-                developer.setFirstName(firstName);
-                developer.setLastName(lastName);
-                developer.setStatus(status);
-
-                // Добавление выбранных навыков
-                if (!skillChoice.isEmpty()) {
-                    String[] chosenSkills = skillChoice.split(",");
-                    for (String num : chosenSkills) {
-                        try {
-                            int skillNum = Integer.parseInt(num.trim()) - 1;
-                            if (skillNum >= 0 && skillNum < skills.size()) {
-                                developer.getSkills().add(skills.get(skillNum));
-                            }
-                        } catch (NumberFormatException e) {
-                            // Пропускаем некорректные номера
-                        }
-                    }
+                // Ввод специальностей
+                System.out.print("\nВведите названия нужных специальностей через запятую: ");
+                String[] neededSpecs = scanner.nextLine().split(",");
+                for (String specName : neededSpecs) {
+                    specialtyController.getAllSpecialties().stream()
+                            .filter(s -> s.getName().equalsIgnoreCase(specName.trim()))
+                            .findFirst()
+                            .ifPresent(spec -> dev.getSpecialties().add(spec));
                 }
 
-                // Добавление выбранных специальностей
-                if (!specChoice.isEmpty()) {
-                    String[] chosenSpecs = specChoice.split(",");
-                    for (String num : chosenSpecs) {
-                        try {
-                            int specNum = Integer.parseInt(num.trim()) - 1;
-                            if (specNum >= 0 && specNum < specialties.size()) {
-                                developer.getSpecialties().add(specialties.get(specNum));
-                            }
-                        } catch (NumberFormatException e) {
-                            // Пропускаем некорректные номера
-                        }
-                    }
-                }
-
-                developerController.saveDeveloper(developer);
-                System.out.println("Разработчик " + developer.getFirstName() + " " + developer.getLastName() + " успешно добавлен!");
+                // Сохранение разработчика
+                developerController.saveDeveloper(dev);
+                System.out.println("\nРазработчик успешно добавлен!");
 
             } else if (input == 5) {
                 System.out.println("Введите ID разработчика для измений данных");
