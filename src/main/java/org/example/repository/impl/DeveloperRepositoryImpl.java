@@ -43,7 +43,7 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
         try {
-            session.merge(developer); // Используем merge вместо update
+            session.merge(developer);
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
@@ -60,7 +60,7 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
         try {
             Developer dev = session.find(Developer.class, id);
             if (dev != null) {
-                session.remove(dev); // Связи удалятся автоматически
+                session.remove(dev);
             }
             tx.commit();
         } catch (Exception e) {
