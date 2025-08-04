@@ -8,6 +8,7 @@ import org.example.model.Skill;
 import org.example.model.Specialty;
 import org.example.model.Status;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class View {
@@ -58,31 +59,44 @@ public class View {
                 dev.setLastName(lastName);
                 dev.setStatus(Status.ACTIVE);
 
-                // Вывод списка всех навыков
+                // Выбор навыков
+                List<Skill> allSkills = skillController.getAllSkills();
                 System.out.println("\nДоступные навыки:");
-                skillController.getAllSkills().forEach(s -> System.out.println("- " + s.getName()));
-
-                // Ввод навыков (остается ManyToMany)
-                System.out.print("\nВведите названия нужных навыков через запятую: ");
-                String[] neededSkills = scanner.nextLine().split(",");
-                for (String skillName : neededSkills) {
-                    skillController.getAllSkills().stream()
-                            .filter(s -> s.getName().equalsIgnoreCase(skillName.trim()))
-                            .findFirst()
-                            .ifPresent(skill -> dev.getSkills().add(skill));
+                for (int i = 0; i < allSkills.size(); i++) {
+                    System.out.println((i + 1) + ". " + allSkills.get(i).getName());
                 }
 
-                // Вывод списка всех специальностей
-                System.out.println("\nДоступные специальности:");
-                specialtyController.getAllSpecialties().forEach(s -> System.out.println("- " + s.getName()));
+                System.out.print("\nВведите номера нужных навыков через запятую (например: 1,3): ");
+                String[] skillNumbers = scanner.nextLine().split(",");
+                for (String numStr : skillNumbers) {
+                    try {
+                        int num = Integer.parseInt(numStr.trim()) - 1;
+                        if (num >= 0 && num < allSkills.size()) {
+                            dev.getSkills().add(allSkills.get(num));
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Пропущен неверный номер: " + numStr);
+                    }
+                }
 
-                // Ввод ОДНОЙ специальности (ManyToOne)
-                System.out.print("\nВведите название специальности: ");
-                String specName = scanner.nextLine().trim();
-                specialtyController.getAllSpecialties().stream()
-                        .filter(s -> s.getName().equalsIgnoreCase(specName))
-                        .findFirst()
-                        .ifPresent(dev::setSpecialty);
+                // Выбор специальности
+                List<Specialty> allSpecialties = specialtyController.getAllSpecialties();
+                System.out.println("\nДоступные специальности:");
+                for (int i = 0; i < allSpecialties.size(); i++) {
+                    System.out.println((i + 1) + ". " + allSpecialties.get(i).getName());
+                }
+
+                System.out.print("\nВведите номер специальности: ");
+                try {
+                    int specNum = Integer.parseInt(scanner.nextLine().trim()) - 1;
+                    if (specNum >= 0 && specNum < allSpecialties.size()) {
+                        dev.setSpecialty(allSpecialties.get(specNum));
+                    } else {
+                        System.out.println("Некорректный номер специальности");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Введите число!");
+                }
 
                 // Сохранение разработчика
                 developerController.saveDeveloper(dev);
