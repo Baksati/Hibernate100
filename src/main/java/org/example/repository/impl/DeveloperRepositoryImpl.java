@@ -2,6 +2,7 @@ package org.example.repository.impl;
 
 import org.example.config.HibernateUtil;
 import org.example.model.Developer;
+import org.example.model.Skill;
 import org.example.repository.DeveloperRepository;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -19,9 +20,26 @@ public class DeveloperRepositoryImpl implements DeveloperRepository {
     @Override
     public Developer getById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.find(Developer.class, id);
+            Developer developer = session.find(Developer.class, id);
+            for (Skill skill : developer.getSkills()) {
+                System.out.println(skill.getName());        }
+            return developer;
         }
     }
+
+    /* @Override
+    public Developer getById(Long id) {
+        Developer developer = new Developer();
+        try (Session session = HibernateUtil.getSession()){
+            developer =  (Developer) session.createQuery
+                    ("SELECT d FROM Developer d JOIN FETCH d.skills JOIN FETCH d.specialty " +
+                            "WHERE d.id = (:id)").setParameter("id", id).getSingleResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return developer;
+    }
+     */
 
     @Override
     public void save(Developer developer) {

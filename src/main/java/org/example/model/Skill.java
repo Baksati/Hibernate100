@@ -16,7 +16,7 @@ public class Skill {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "skills")
+    @ManyToMany(mappedBy = "skills", targetEntity = Developer.class, cascade = CascadeType.ALL)
     private List<Developer> developers = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

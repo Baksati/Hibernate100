@@ -62,7 +62,7 @@ public class View {
                 System.out.println("\nДоступные навыки:");
                 skillController.getAllSkills().forEach(s -> System.out.println("- " + s.getName()));
 
-                // Ввод навыков
+                // Ввод навыков (остается ManyToMany)
                 System.out.print("\nВведите названия нужных навыков через запятую: ");
                 String[] neededSkills = scanner.nextLine().split(",");
                 for (String skillName : neededSkills) {
@@ -76,15 +76,13 @@ public class View {
                 System.out.println("\nДоступные специальности:");
                 specialtyController.getAllSpecialties().forEach(s -> System.out.println("- " + s.getName()));
 
-                // Ввод специальностей
-                System.out.print("\nВведите названия нужных специальностей через запятую: ");
-                String[] neededSpecs = scanner.nextLine().split(",");
-                for (String specName : neededSpecs) {
-                    specialtyController.getAllSpecialties().stream()
-                            .filter(s -> s.getName().equalsIgnoreCase(specName.trim()))
-                            .findFirst()
-                            .ifPresent(spec -> dev.getSpecialties().add(spec));
-                }
+                // Ввод ОДНОЙ специальности (ManyToOne)
+                System.out.print("\nВведите название специальности: ");
+                String specName = scanner.nextLine().trim();
+                specialtyController.getAllSpecialties().stream()
+                        .filter(s -> s.getName().equalsIgnoreCase(specName))
+                        .findFirst()
+                        .ifPresent(dev::setSpecialty);
 
                 // Сохранение разработчика
                 developerController.saveDeveloper(dev);

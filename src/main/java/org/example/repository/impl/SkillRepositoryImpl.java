@@ -1,6 +1,7 @@
 package org.example.repository.impl;
 
 import org.example.config.HibernateUtil;
+import org.example.model.Developer;
 import org.example.model.Skill;
 import org.example.repository.SkillRepository;
 import org.hibernate.Session;
@@ -51,9 +52,9 @@ public class SkillRepositoryImpl implements SkillRepository {
 
     @Override
     public void delete(Long id) {
-        Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        try {
             Skill skill = session.find(Skill.class, id);
             if (skill != null) {
                 session.remove(skill);
@@ -61,7 +62,9 @@ public class SkillRepositoryImpl implements SkillRepository {
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            throw new RuntimeException("Ошибка удаления данных навыка", e);
+            throw new RuntimeException("Ошибка при удалении разработчика", e);
+        } finally {
+            session.close();
         }
     }
 }

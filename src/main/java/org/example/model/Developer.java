@@ -25,17 +25,19 @@ public class Developer {
     @Column(nullable = false)
     private Status status = Status.ACTIVE;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = Skill.class)
     @JoinTable(name = "developers_skills",
             joinColumns = @JoinColumn(name = "developer_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills = new ArrayList<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "developers_specialties",
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = Specialty.class)
+    @JoinTable(
+            name = "developers_specialties",
             joinColumns = @JoinColumn(name = "developer_id"),
-            inverseJoinColumns = @JoinColumn(name = "specialty_id"))
-    private List<Specialty> specialties = new ArrayList<>();
+            inverseJoinColumns = @JoinColumn(name = "specialty_id")
+    )
+    private Specialty specialty;
 
     @Override
     public String toString() {
@@ -48,10 +50,8 @@ public class Developer {
                 skills.stream()
                         .map(Skill::getName)
                         .collect(Collectors.joining("\", \"", "[\"", "\"]")) : "[]") + ",\n" +
-                "  \"specialties\": " + (specialties != null ?
-                specialties.stream()
-                        .map(Specialty::getName)
-                        .collect(Collectors.joining("\", \"", "[\"", "\"]")) : "[]") + "\n" +
+                "  \"specialty\": " + (specialty != null ?
+                "\"" + specialty.getName() + "\"" : "null") + "\n" +
                 "}";
     }
 }
